@@ -1,14 +1,7 @@
 :root {
   --white: #ffffff;
   --black: #000000;
-}
-
-/* Display-P3 color, when supported. */
-@supports (color: color(display-p3 1 1 1)) {
-  :root {
-    --white: color(display-p3 1.0001 1 0.9999);
-    --black: color(display-p3 0 0 0);
-  }
+  --blue: #6bbfe1;
 }
 
 *,
@@ -19,7 +12,15 @@
   box-sizing: border-box;
 }
 
+html,
+body,
+#root {
+  width: 100%;
+  height: 100%;
+}
+
 body {
   scrollbar-width: thin;
+  background: var(--blue);
   text-rendering: geometricprecision;
 }
