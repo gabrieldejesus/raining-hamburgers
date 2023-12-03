@@ -6,31 +6,38 @@ import { useGLTF, Environment } from "@react-three/drei";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { EffectComposer, DepthOfField } from "@react-three/postprocessing";
 
-const Burger = ({ z }) => {
+const Burger = ({ z, index, speed }) => {
   const ref = useRef();
   const { nodes, materials } = useGLTF("/burger.glb");
 
   const { viewport, camera } = useThree();
-  const { width, height } = viewport.getCurrentViewport(camera, [0, 0, z]);
+  const { width, height } = viewport.getCurrentViewport(camera, [0, 0, -z]);
 
   const [data] = useState({
     x: THREE.MathUtils.randFloatSpread(2),
-    y: THREE.MathUtils.randFloatSpread(height),
+    y: THREE.MathUtils.randFloatSpread(height * 2),
+    spin: THREE.MathUtils.randFloat(8, 12),
     rX: Math.random() * Math.PI,
-    rY: Math.random() * Math.PI,
     rZ: Math.random() * Math.PI,
   });
 
-  useFrame((state) => {
-    ref.current.rotation.set(
-      (data.rX += 0.001),
-      (data.rY += 0.001),
-      (data.rZ += 0.001)
-    );
-    ref.current.position.set(data.x * width, (data.y += 0.025), z);
+  useFrame((state, delta) => {
+    if (delta < 0.1) {
+      ref.current.position.set(
+        index === 0 ? 0 : data.x * width,
+        (data.y += delta * speed),
+        -z
+      );
+    }
 
-    if (data.y > height) {
-      data.y = -height;
+    ref.current.rotation.set(
+      (data.rX += delta / data.spin),
+      Math.sin(index * 1000 + state.clock.elapsedTime / 10) * Math.PI,
+      (data.rZ += delta / data.spin)
+    );
+
+    if (data.y > height * (index === 0 ? 4 : 1)) {
+      data.y = -(height * (index === 0 ? 4 : 1));
     }
   });
 
@@ -62,31 +69,46 @@ useGLTF.preload("/burger.glb");
 
 // 9FCEE2
 export default function App() {
-  const count = 100;
-  const depth = 50;
+  const speed = 2;
+  const count = 150;
+  const depth = 80;
+  const easing = (x) => Math.sqrt(1 - Math.pow(x - 1, 2));
 
   return (
-    <Canvas gl={{ alpha: false }} camera={{ near: 0.01, far: 110, fov: 30 }}>
-      <color attach="background" args={["#6BBFE1"]} />
+    <main className="main">
+      <img src="/flint.png" alt="Flint" className="flint" />
 
-      <spotLight position={[10, 10, 10]} intensity={1} />
+      <Canvas
+        className="canvas"
+        gl={{ alpha: false }}
+        camera={{ near: 0.01, far: 110, fov: 30 }}
+      >
+        <color attach="background" args={["#6BBFE1"]} />
 
-      <Suspense fallback={null}>
-        <Environment preset="sunset" />
+        <spotLight position={[10, 10, 10]} intensity={1} />
 
-        {Array.from({ length: count }, (_, index) => (
-          <Burger key={index} z={-(index / count) * depth - 20} />
-        ))}
+        <Suspense fallback={null}>
+          <Environment preset="sunset" />
 
-        <EffectComposer>
-          <DepthOfField
-            target={[0, 0, depth / 2]}
-            focalLength={0.5}
-            bokehScale={11}
-            height={700}
-          />
-        </EffectComposer>
-      </Suspense>
-    </Canvas>
+          {Array.from({ length: count }, (_, index) => (
+            <Burger
+              key={index}
+              index={index}
+              z={Math.round(easing(index / count) * depth)}
+              speed={speed}
+            />
+          ))}
+
+          <EffectComposer>
+            <DepthOfField
+              target={[0, 0, depth / 2]}
+              focalLength={0.5}
+              bokehScale={11}
+              height={700}
+            />
+          </EffectComposer>
+        </Suspense>
+      </Canvas>
+    </main>
   );
 }

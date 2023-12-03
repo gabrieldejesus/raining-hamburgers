@@ -24,3 +24,26 @@ body {
   background: var(--blue);
   text-rendering: geometricprecision;
 }
+
+.main {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  position: relative;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.flint {
+  bottom: -1px;
+  z-index: 100;
+  height: 400px;
+  position: absolute;
+}
+
+/* Medium devices (tablets, 768px and up) */
+@media (min-width: 768px) {
+  .flint {
+    height: unset;
+  }
+}
