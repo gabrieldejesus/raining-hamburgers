@@ -67,9 +67,8 @@ const Burger = ({ z, index, speed }) => {
 
 useGLTF.preload("/burger.glb");
 
-// 9FCEE2
 export default function App() {
-  const speed = 2;
+  const speed = 1;
   const count = 150;
   const depth = 80;
   const easing = (x) => Math.sqrt(1 - Math.pow(x - 1, 2));
