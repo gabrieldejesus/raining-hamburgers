@@ -1,5 +1,3 @@
-# Raining Hamburgers
-
 <p align="center">
   <img src="./public/cover.png" alt="Raining Hamburgers">
 </p>
